@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    </head>
+
+    <div class="container">
+        <div class="jumbotron">
+          <h1>Products Management</h1>
+          <p>World class products</p>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/home">Home </a>
+                {% if session["isloggedin"] %}
+                    <a class="nav-item nav-link" href="/productadd">Add Products</a>
+                    <a class="nav-item nav-link" href="/coupons">Your Coupons</a>
+                    <a class="nav-item nav-link" href="/mydevice">Register My Device</a>
+                    <a class="nav-item nav-link" href="/findmydevice">Find My Device</a>
+                    <a class="nav-item nav-link" href="/favorites">Favorites</a>
+                    <a class="nav-item nav-link" href="/accesslogs">Access Logs</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                {% endif %}
+              </div>
+            </div>
+            {% if session["isloggedin"] %}
+                <span class="navbar-text">
+                    Welcome {{ session["user"] }}!
+                </span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+    <body>
+        <div class="container">
+            <h2>Add Products</h2>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <form action="#">
+                    <input id="id" name="id" placeholder="productid" value="">
+                    <input id="product_name" name="product_name" placeholder="product_name" value="">
+                    <input id="price" name="price" placeholder="price" value="">
+                    <input id="quantity" name="quantity" placeholder="quantity" value="">
+                    <input type="button" name="addproduct" id="addproduct" value="addproduct" onclick="javascript:callapiproductadd();">
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <span class="container" id="apiresult">
+            </span>
+          <div>
+    </body>
+    <script>
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return parts.pop().split(";").shift();
+                }
+                return null;
+            }
+        function callapiproductadd(){
+            path = "/api/products/"
+            var productdata = {};
+            var id = parseInt($('#id').val());
+            var product_name = $('#product_name').val();
+            var price = $('#price').val();
+            var quantity = $('#quantity').val();
+            productdata.id = id;
+            productdata.product_name = product_name;
+            productdata.price = price;
+            productdata.quantity = quantity;
+
+            requestdata = JSON.stringify(productdata)
+            $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: path,
+            data: requestdata,
+            headers: {'Authorization' : 'Bearer ' + getCookie("access_token")},
+            success: function (responseData) {
+                $('#apiresult').html("<div class='alert alert-success' role='alert'> Product Added </div>");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + xhr.status + " - " + xhr.statusText + "</div>");
+            }
+        }
+        )
+    }
+    </script>
+</html>

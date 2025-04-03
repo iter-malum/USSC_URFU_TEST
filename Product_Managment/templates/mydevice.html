@@ -1,0 +1,133 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    </head>
+
+    <div class="container">
+        <div class="jumbotron">
+          <h1>Products Management</h1>
+          <p>World class products</p>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/home">Home </a>
+                {% if session["isloggedin"] %}
+                    <a class="nav-item nav-link" href="/productadd">Add Products</a>
+                    <a class="nav-item nav-link" href="/coupons">Your Coupons</a>
+                    <a class="nav-item nav-link" href="/mydevice">Register My Device</a>
+                    <a class="nav-item nav-link" href="/findmydevice">Find My Device</a>
+                    <a class="nav-item nav-link" href="/favorites">Favorites</a>
+                    <a class="nav-item nav-link" href="/accesslogs">Access Logs</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                {% endif %}
+              </div>
+            </div>
+            {% if session["isloggedin"] %}
+                <span class="navbar-text">
+                    Welcome {{ session["user"] }}!
+                </span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+    <body onload="hideSaveLocationButtons();">
+        <div class="container">
+            <h2>Register My Device</h2>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <form action="#">
+                  <button onclick="getLatLong()">Get Location</button>
+                  <div>
+                    Latitude: <span id="latitude"></span><br>
+                    Longitude: <span id="longitude"></span>
+                    <div id="googlemaps"></div>
+                    <button id="btnSaveCurrentLocation" onclick="saveLocation('current')">Save My Location</button>
+                    <button id="btnSaveEiffelLocation" onclick="saveLocation('eiffel')">Put Me In The Eiffel Tower</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <span class="container" id="apiresult">
+            </span>
+          <div>
+    </body>
+    <script>
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return parts.pop().split(";").shift();
+                }
+                return null;
+            }
+
+            function hideSaveLocationButtons(){
+              $('#btnSaveCurrentLocation').hide();
+              //$('#btnSaveEiffelLocation').hide();
+            }
+
+            function showSaveLocationButtons(){
+              $('#btnSaveCurrentLocation').show();
+              //$('#btnSaveEiffelLocation').show();
+            }
+
+              function getLatLong() {
+                // Check if Geolocation is supported in the user's browser
+                if ("geolocation" in navigator) {
+                  // Get the user's current location using the Geolocation API
+                  navigator.geolocation.getCurrentPosition(function (position) {
+                    var lat = position.coords.latitude;
+                    var long = position.coords.longitude;
+                    $("#latitude").text(lat);
+                    $("#longitude").text(long);
+                    var mapsurl = "https://maps.google.com/maps?q=" + lat + "," + long + "&output=embed";
+                    var iframe = '<iframe src="' + mapsurl  +'"></iframe>';
+                    $("#googlemaps").html(iframe);
+                    showSaveLocationButtons();
+                  });
+                } else {
+                  // Geolocation is not supported in the user's browser
+                  console.log("Geolocation is not supported in this browser");
+                }
+              }
+
+        function saveLocation(where){
+            if (where === 'current') {
+                var lat = $("#latitude").text();
+                var long = $("#longitude").text();
+                callapisavelocation(lat, long);
+            } else {
+                callapisavelocation('48.8584', '2.2945');
+            }
+          }
+        function callapisavelocation(lat, long){
+            path = "/api/locations/"
+            var locationdata = {};
+            locationdata.lat = lat;
+            locationdata.long = long;
+            requestdata = JSON.stringify(locationdata)
+            $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: path,
+            data: requestdata,
+            headers: {'Authorization' : 'Bearer ' + getCookie("access_token")},
+            success: function (responseData) {
+                $('#apiresult').html("<div class='alert alert-success' role='alert'> Saved </div>");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + xhr.status + " - " + xhr.statusText + "</div>");
+            }
+        }
+        )
+    }
+    </script>
+</html>

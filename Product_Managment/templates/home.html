@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    </head>
+
+    <div class="container">
+        <div class="jumbotron">
+          <h1>Products Management</h1>
+          <p>World class products</p>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/home">Home </a>
+                {% if session["isloggedin"] %}
+                    <a class="nav-item nav-link" href="/productadd">Add Products</a>
+                    <a class="nav-item nav-link" href="/coupons">Your Coupons</a>
+                    <a class="nav-item nav-link" href="/mydevice">Register My Device</a>
+                    <a class="nav-item nav-link" href="/findmydevice">Find My Device</a>
+                    <a class="nav-item nav-link" href="/favorites">Favorites</a>
+                    <a class="nav-item nav-link" href="/accesslogs">Access Logs</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                {% endif %}
+              </div>
+            </div>
+            {% if session["isloggedin"] %}
+                <span class="navbar-text">
+                    Welcome {{ session["user"] }}!
+                </span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+    <body>
+        <div class="container">
+            <h2>Products</h2>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Details</th>
+                            <th>Reviews</th>
+                          </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in all_products %}
+                        <tr>
+                            <td>{{ product.product_name | safe }}</td>
+                            <td><button type="submit" onclick="javascript:callapiproducts('products', {{ product.id }});">Details</button></td>
+                            <td><button type="submit" onclick="javascript:callapireviews('reviewsbyproduct', {{ product.id }});">Reviews</button></td>
+                            <!-- <td><a href="javascript:callapiproducts('products', {{ product.id }});">Details</a></td>
+                            <td><a href="javascript:callapireviews('reviewsbyproduct', {{ product.id }})">Reviews</a></td> -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="container">
+            <h4 id="apiname"></h4>
+            <div class="container" id="apiresult">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th id="column1header"></th>
+                            <th id="column2header"></th>
+                            <th id="column3header"></th>
+                          </tr>
+                    </thead>
+                    <tbody id="reviewtablebody">
+                    </tbody>
+                </table>
+            </div>
+          <div>
+    </body>
+    <script>
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return parts.pop().split(";").shift();
+                }
+                return null;
+            }
+
+        function callapiproducts(endpoint, data){
+            path = "/api/" + endpoint + "/" + data;
+            $('#apiname').html(endpoint)
+            var url = location.protocol + "//" + location.host + path
+            $('#column1header').html("Product");
+            $('#column2header').html("Quantity");
+            $('#column3header').html("Price");
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: url,
+                headers: {'Authorization' : 'Bearer ' + getCookie("access_token")},
+                success: function (responseData) {
+                    var responseJSON = $.parseJSON(responseData);
+                    var tablebodyhtml = "<tr><td>" + responseJSON.product_name + "</td>" + "<td>" + responseJSON.quantity + "</td>" + "<td>" + responseJSON.price + "</td></tr>";
+                    $('#reviewtablebody').html(tablebodyhtml);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status + xhr.statusText)
+                }
+            }
+            )
+            return false;
+        }
+
+        function callapireviews(endpoint, data){
+            path = "/api/" + endpoint + "/" + data;
+            $('#apiname').html(endpoint)
+            var url = location.protocol + "//" + location.host + path
+            $('#column1header').html("Product");
+            $('#column2header').html("Stars");
+            $('#column3header').html("Review");
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: url,
+                headers: {'Authorization' : 'Bearer ' + getCookie("access_token")},
+                success: function (responseData) {
+                    var responseJSON = $.parseJSON(responseData);
+                    var tablebodyhtml = "";
+                    if (responseJSON.length > 0) {
+                        $.each(responseJSON, function (i, item) {
+                            var tabledata = "<tr><td>" + item.product_name + "</td>" + "<td>" + item.stars + "</td>" + "<td>" + item.review + "</td></tr>";
+                            tablebodyhtml = tablebodyhtml + tabledata;
+                        });
+                    }
+                    else {
+                        tablebodyhtml = "<tr><td>No Reviews Found</td></tr>"
+                    }
+                    $('#reviewtablebody').html(tablebodyhtml);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status + xhr.statusText)
+                }
+            }
+            )
+            return false;
+        }
+    </script>
+</html>

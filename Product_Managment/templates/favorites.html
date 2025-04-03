@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    </head>
+
+    <div class="container">
+        <div class="jumbotron">
+          <h1>Products Management</h1>
+          <p>World class products</p>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/home">Home </a>
+                {% if session["isloggedin"] %}
+                    <a class="nav-item nav-link" href="/productadd">Add Products</a>
+                    <a class="nav-item nav-link" href="/coupons">Your Coupons</a>
+                    <a class="nav-item nav-link" href="/mydevice">Register My Device</a>
+                    <a class="nav-item nav-link" href="/findmydevice">Find My Device</a>
+                    <a class="nav-item nav-link" href="/favorites">Favorites</a>
+                    <a class="nav-item nav-link" href="/accesslogs">Access Logs</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                {% endif %}
+              </div>
+            </div>
+            {% if session["isloggedin"] %}
+                <span class="navbar-text">
+                    Welcome {{ session["user"] }}!
+                </span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+    <body>
+        <div class="container">
+            <h2>Favorites</h2>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <form action="#">
+                  <a href="javascript:callapiaddfavorites();">Add Current Products As Favorites</a>
+                  <p></p>
+                  <a href="javascript:callapigetfavorites();">Retrieve Current Favorites</a>
+                  <p></p>
+                  <span id="favorites" name="favorites"></span>
+                </form>
+                <!-- {% if favorites %}
+                <form action="#">
+                  <span id="couponcode" name="couponcode">{{ couponcode }}</span>
+                  <a href="javascript:callapiisstillvalid();">Is Still Valid?</a>
+                </form>
+                {% endif %} -->
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <span class="container" id="apiresult">
+            </span>
+          <div>
+    </body>
+    <script>
+        function getCookie(name) {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) {
+            return parts.pop().split(";").shift();
+          }
+          return null;
+        }
+
+        function setCookie(name, value, days) {
+          var expires = "";
+          if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+          }
+          document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function callapiaddfavorites() {
+          path = "/api/favorites/save"
+          $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: path,
+            headers: { 'Authorization': 'Bearer ' + getCookie("access_token") },
+            success: function (responseData) {
+              favorites = responseData["favorites"];
+              setCookie('favorites', favorites, 365);
+              $('#apiresult').html("<div class='alert alert-success' role='alert'> Favorites Saved </div>");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + xhr.status + " - " + xhr.statusText + "</div>");
+            }
+          }
+          )
+        }
+        function callapigetfavorites() {
+          path = "/api/favorites/retrieve"
+          var favoritesdata = {};
+          var favorites = getCookie('favorites');
+          favoritesdata.favorites = favorites;
+          requestdata = JSON.stringify(favoritesdata)
+          $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: path,
+            data: requestdata,
+            headers: { 'Authorization': 'Bearer ' + getCookie("access_token") },
+            success: function (responseData) {
+              $('#apiresult').html("<div class='alert alert-success' role='alert'>" +responseData["favorites"] + "</div>");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + xhr.status + " - " + xhr.statusText + "</div>");
+            }
+          }
+          )
+        }
+    </script>
+</html>

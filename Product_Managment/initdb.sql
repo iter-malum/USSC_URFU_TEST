@@ -1,0 +1,2 @@
+CREATE DATABASE casp-pm;
+DROP TABLE IF EXISTS users;

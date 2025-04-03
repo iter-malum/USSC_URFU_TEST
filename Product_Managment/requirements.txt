@@ -1,0 +1,13 @@
+Flask===2.2.2
+Flask-Cors
+wheel
+flask_mongoengine
+flasgger
+setuptools
+psycopg2
+PyJWT
+pymongo
+apispec
+marshmallow
+apispec-webframeworks
+Werkzeug==2.2.2

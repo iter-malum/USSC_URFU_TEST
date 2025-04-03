@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    </head>
+
+    <div class="container">
+        <div class="jumbotron">
+          <h1>Products Management</h1>
+          <p>World class products</p>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/home">Home </a>
+                {% if session["isloggedin"] %}
+                    <a class="nav-item nav-link" href="/productadd">Add Products</a>
+                    <a class="nav-item nav-link" href="/coupons">Your Coupons</a>
+                    <a class="nav-item nav-link" href="/mydevice">Register My Device</a>
+                    <a class="nav-item nav-link" href="/findmydevice">Find My Device</a>
+                    <a class="nav-item nav-link" href="/favorites">Favorites</a>
+                    <a class="nav-item nav-link" href="/accesslogs">Access Logs</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                {% endif %}
+              </div>
+            </div>
+            {% if session["isloggedin"] %}
+                <span class="navbar-text">
+                    Welcome {{ session["user"] }}!
+                </span>
+                <input type="hidden" id="id" value='{{session["userid"]}}'/>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+    <body onload="displaydevicelocation()">
+        <div class="container">
+            <h2>Find My Device</h2>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <form action="#">
+                  <h3>Your Saved Location</h3>
+                  <button id="btnGetSavedLocation" onclick="displaydevicelocation()">Get My Saved Location</button>
+                  <div>
+                    Latitude: <span id="latitude"></span><br>
+                    Longitude: <span id="longitude"></span>
+                    <div id="googlemaps"></div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <span class="container" id="apiresult">
+            </span>
+          <div>
+    </body>
+    <script>
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return parts.pop().split(";").shift();
+                }
+                return null;
+            }
+
+            function displaydevicelocation(){
+              id = $("#id").val();
+              callapigetlocation(id);
+            }
+
+        function callapigetlocation(id){
+            path = "/api/locations/" + id;
+            $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: path,
+            headers: {'Authorization' : 'Bearer ' + getCookie("access_token")},
+            success: function (responseData) {
+                if (responseData === null){
+                    $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + "No location saved. Set your location first!" + "</div>");
+                }
+                else{
+                    var lat = responseData["lat"];
+                    var long = responseData["long"];
+                    $("#latitude").text(lat);
+                    $("#longitude").text(long);
+                    var mapsurl = "https://maps.google.com/maps?q=" + lat + "," + long + "&output=embed";
+                    var iframe = '<iframe src="' + mapsurl  +'"></iframe>';
+                    $("#googlemaps").html(iframe);              
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#apiresult').html("<div class='alert alert-danger' role='alert'>" + xhr.status + " - " + xhr.statusText + "</div>");
+            }
+        }
+        )
+    }
+    </script>
+</html>

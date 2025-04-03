@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14.5
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=casp-pm
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:4.4.18
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/apps/mongo:/data/db
+
+  app:
+    build: .
+    working_dir: /casp-pm
+    image: casp-pm
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - mongodb
+    environment:
+      PG_DB_SERVER: db
+      #DB_PORT: 5432
+      PB_DB_USER: casp-pm
+      PG_DB_PASSWORD: root
+      PB_DB_DB: casp-pm
+      MONGO_SERVER: mongodb
+      MONGO_DB: casp-pm
+      FLASK_APP: app.py
+      FLASK_RUN_HOST: 0.0.0.0
+      PYTHONPATH: "${PYTHONPATH}:/CASP-PM"
+    links:
+      - db
+      - mongodb
+    volumes:
+      - .:/casp-pm
+      - /var/log:/var/log
+      
+volumes:
+  db:
+    driver: local
+
