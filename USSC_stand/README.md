@@ -1,7 +1,7 @@
 ## 🛡️Эксплуатация USSC Stand
 ### Развертывание
-docker build -t USSC_stand .
-docker run -d --name USSC_stand -p 80:80 USSC_stand
+1. docker build -t USSC_stand .
+2. docker run -d --name USSC_stand -p 80:80 USSC_stand
 Настройка:
 Откройте в браузере http://<ваш-ip>/install.php
 
