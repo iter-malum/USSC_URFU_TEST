@@ -1,0 +1,1 @@
+<font color="green">Thanks for your interest in USSC_stand!</font>

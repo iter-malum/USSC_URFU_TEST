@@ -1,0 +1,31 @@
+<?php
+
+define('DB_NAME', 'USSC_stand');    // The name of the database
+define('DB_USER', 'thor');     // Your MySQL username
+define('DB_PASSWORD', 'Asgard'); // ...and password
+define('DB_HOST', 'localhost');    // 99% chance you won't need to change this value
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+
+
+
+define('AUTH_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
+define('SECURE_AUTH_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
+define('LOGGED_IN_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
+
+
+$table_prefix  = 'wp_';   // Only numbers, letters, and underscores please!
+
+
+
+
+
+define ('WPLANG', '');
+
+/* That's all, stop editing! Happy blogging. */
+
+if ( !defined('ABSPATH') )
+	define('ABSPATH', dirname(__FILE__) . '/');
+require_once(ABSPATH . 'wp-settings.php');
+?>
