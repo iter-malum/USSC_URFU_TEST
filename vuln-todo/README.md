@@ -1,9 +1,8 @@
 ## 🔧 Уязвимый todo-list
 
 ### Развертывание окружения
-bash
-docker build -t todo-list .
-docker run -d --name flask -p 80:5000 todo-list
+1. docker build -t todo-list .
+2. docker run -d --name flask -p 80:5000 todo-list
 
 Доступ к приложению:
 http://127.0.0.1:5000/apidocs/
