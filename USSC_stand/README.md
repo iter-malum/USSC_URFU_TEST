@@ -1,7 +1,5 @@
 ## 🛡️Эксплуатация USSC Stand
 ### Развертывание
-bash
-Copy
 docker build -t USSC_stand .
 docker run -d --name USSC_stand -p 80:80 USSC_stand
 Настройка:
